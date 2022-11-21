@@ -180,7 +180,7 @@ const runAction = () => {
 			if (pkgManager.kind === "npm") {
 				run(`npx --no-install ${fullCmd}`, appRoot);
 			} else if (pkgManager.kind === "pnpm") {
-				run(`pnpm dlx ${fullCmd}`, appRoot);
+				run(`pnpm ${fullCmd}`, appRoot);
 			} else {
 				run(`yarn ${fullCmd}`, appRoot);
 			}
