@@ -179,7 +179,7 @@ const runAction = () => {
 			} else if (pkgManager.kind === "pnpm") {
 				run(`pnpm dlx ${fullCmd}`, appRoot);
 			} else {
-				run(`yarn exec ${fullCmd}`);
+				run(`yarn ${fullCmd}`, appRoot);
 			}
 			break;
 		} catch (err) {
