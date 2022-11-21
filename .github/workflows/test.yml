@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        package_manager: [npm, yarn]
+        package_manager: [pnpm, npm, yarn]
         package_root: ["./test/app-in-root/", "./test/app-in-subdirectory/", "./test/vue-app"]
 
     steps:
@@ -25,6 +25,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      - uses: pnpm/action-setup@v2
+        if: matrix.package_manager == 'pnpm'
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: false
 
       - name: Install test app dependencies
         run: |
