@@ -145,7 +145,7 @@ const runAction = () => {
 	// Disable console advertisements during install phase
 	setEnv("ADBLOCK", true);
 
-	if(!skipPackageManagerInstall){
+	if (!skipPackageManagerInstall) {
 		log(`Installing dependencies using ${pkgManager.name}…`);
 		run(`${pkgManager.command} install`, pkgRoot);
 	}
