@@ -1,5 +1,7 @@
 # Electron Builder Action
 
+[![Test](https://github.com/paneron/action-electron-builder/actions/workflows/test.yml/badge.svg)](https://github.com/paneron/action-electron-builder/actions/workflows/test.yml)
+
 **GitHub Action for building and releasing Electron apps**
 
 This is a GitHub Action for automatically building and releasing your Electron app using GitHub's CI/CD capabilities. It uses [`electron-builder`](https://github.com/electron-userland/electron-builder) to package your app and release it to a platform like GitHub Releases.
