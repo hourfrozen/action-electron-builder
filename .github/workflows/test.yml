@@ -1,8 +1,24 @@
 name: Test
 
 on:
-  - push
-  - pull_request
+  push:
+    paths-ignore:
+      - "/*.sh"
+      - "/.*"
+      - "/_*"
+      - "**.txt"
+      - "**.adoc"
+      - "**.md"
+      - ".github/workflows/*.yml"
+      - "!.github/workflows/test.yml"
+  pull_request:
+    paths-ignore:
+      - "/*.sh"
+      - "/.*"
+      - "/_*"
+      - "**.txt"
+      - "**.adoc"
+      - "**.md"
 
 jobs:
   test:
