@@ -1,6 +1,9 @@
 name: Test
 
 on:
+  schedule:
+    # every day at 10:00 UTC
+    - cron: "0 10 * * *"
   push:
     paths-ignore:
       - "/*.sh"
