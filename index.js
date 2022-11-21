@@ -35,6 +35,23 @@ const getPlatform = () => {
 };
 
 /**
+ * Returns the value for an environment variable (or `null` if it's not defined)
+ */
+const getEnv = (name) => process.env[name.toUpperCase()] || null;
+
+/**
+ * Returns the value for an input variable (or `null` if it's not defined). If the variable is
+ * required and doesn't have a value, abort the action
+ */
+const getInput = (name, required) => {
+	const value = getEnv(`INPUT_${name}`);
+	if (required && !value) {
+		exit(`"${name}" input variable is not defined`);
+	}
+	return value;
+};
+
+/**
  * Determines the package manager that should be used. Currently, supports `npm`,
  * `pnpm`, and will default to `yarn` if no other could be found
  */
@@ -75,29 +92,12 @@ const getPackageManager = (pkgRoot) => {
 };
 
 /**
- * Returns the value for an environment variable (or `null` if it's not defined)
- */
-const getEnv = (name) => process.env[name.toUpperCase()] || null;
-
-/**
  * Sets the specified env variable if the value isn't empty
  */
 const setEnv = (name, value) => {
 	if (value) {
 		process.env[name.toUpperCase()] = value.toString();
 	}
-};
-
-/**
- * Returns the value for an input variable (or `null` if it's not defined). If the variable is
- * required and doesn't have a value, abort the action
- */
-const getInput = (name, required) => {
-	const value = getEnv(`INPUT_${name}`);
-	if (required && !value) {
-		exit(`"${name}" input variable is not defined`);
-	}
-	return value;
 };
 
 /**
@@ -112,7 +112,6 @@ const runAction = () => {
 	const useVueCli = getInput("use_vue_cli") === "true";
 	const args = getInput("args") || "";
 	const maxAttempts = Number(getInput("max_attempts") || "1");
-	const packageManager = getInput("package_manager") || "yarn";
 	const skipPackageManagerInstall = getInput("skip_package_manager_install") || false;
 
 	// TODO: Deprecated option, remove in v2.0. `electron-builder` always requires a `package.json` in
