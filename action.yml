@@ -4,13 +4,13 @@ description: GitHub Action for building and releasing Electron apps
 
 inputs:
   skip_package_manager_install:
-    description: skip package manager install
+    description: Whether to skip package manager install
     required: false
     default: false
   package_manager:
-    description: package manager
+    description: Package manager to use (`pnpm | yarn | npm`)
     required: false
-    default: "npm"
+    default: "yarn"
   github_token:
     description: GitHub authentication token
     required: true

@@ -71,12 +71,16 @@ After building successfully, the action will publish your release artifacts. By 
 
 You can configure the action further with the following options:
 
+- `github_token`: (required) GitHub authentication token
+- `release`: Whether the app should be released after a successful build (default: `false`)
 - `package_root`: Directory where NPM/Yarn commands should be run (default: `"."`)
 - `build_script_name`: Name of the optional NPM build script which is executed before `electron-builder` (default: `"build"`)
-- `skip_build`: Whether the action should execute the NPM build script before running `electron-builder`
-- `use_vue_cli`: Whether to run `electron-builder` using the [Vue CLI plugin](https://nklayman.github.io/vue-cli-plugin-electron-builder) instead of calling the command directly
+- `skip_build`: Whether the action should execute the NPM build script before running `electron-builder` (default: `false`)
+- `use_vue_cli`: Whether to run `electron-builder` using the [Vue CLI plugin] (https://nklayman.github.io/vue-cli-plugin-electron-builder) instead of calling the command directly (default: `false`)
 - `args`: Other arguments to pass to the `electron-builder` command, e.g. configuration overrides (default: `""`)
-- `max_attempts`: Maximum number of attempts for completing the build and release step
+- `max_attempts`: Maximum number of attempts for completing the build and release step (default: `1`)
+- `package_manager`: Package manager to use (`pnpm | yarn | npm`) (default: checks for correspondiung lockfiles, and if none found, `yarn`)
+- `skip_package_manager_install`: Whether to skip package manager install (default: `false`)
 
 See [`action.yml`](./action.yml) for a list of all possible input variables.
 

@@ -35,6 +35,46 @@ const getPlatform = () => {
 };
 
 /**
+ * Determines the package manager that should be used. Currently, supports `npm`,
+ * `pnpm`, and will default to `yarn` if no other could be found
+ */
+const getPackageManager = (pkgRoot) => {
+	const pkgLockPath = join(pkgRoot, "package-lock.json");
+	const pnpmLockPath = join(pkgRoot, "pnpm-lock.yaml");
+
+	const pkmgr = getInput("package_manager");
+	if (pkmgr !== undefined && pkmgr != null) {
+		return {
+			name: pkmgr,
+			command: pkmgr,
+			kind: pkmgr.toLowerCase(),
+		};
+	}
+
+	if (existsSync(pkgLockPath)) {
+		return {
+			name: "NPM",
+			command: "npm",
+			kind: "npm",
+		};
+	}
+
+	if (existsSync(pnpmLockPath)) {
+		return {
+			name: "PNPM",
+			command: "pnpm",
+			kind: "pnpm",
+		};
+	}
+
+	return {
+		name: "Yarn",
+		command: "yarn",
+		kind: "yarn",
+	};
+};
+
+/**
  * Returns the value for an environment variable (or `null` if it's not defined)
  */
 const getEnv = (name) => process.env[name.toUpperCase()] || null;
@@ -65,14 +105,14 @@ const getInput = (name, required) => {
  */
 const runAction = () => {
 	const platform = getPlatform();
-	const release = getInput("release", true) === "true";
+	const release = getInput("release") === "true";
 	const pkgRoot = getInput("package_root", true);
 	const buildScriptName = getInput("build_script_name", true);
 	const skipBuild = getInput("skip_build") === "true";
 	const useVueCli = getInput("use_vue_cli") === "true";
 	const args = getInput("args") || "";
 	const maxAttempts = Number(getInput("max_attempts") || "1");
-	const packageManager = getInput("package_manager") || "npm";
+	const packageManager = getInput("package_manager") || "yarn";
 	const skipPackageManagerInstall = getInput("skip_package_manager_install") || false;
 
 	// TODO: Deprecated option, remove in v2.0. `electron-builder` always requires a `package.json` in
@@ -80,10 +120,10 @@ const runAction = () => {
 	const appRoot = getInput("app_root") || pkgRoot;
 
 	const pkgJsonPath = join(pkgRoot, "package.json");
+	const pkgManager = getPackageManager(pkgRoot);
 
-	// Determine whether NPM should be used to run commands (instead of Yarn, which is the default)
-	const useNpm = ['npm','pnpm'].includes(packageManager);
-	log(`Will run ${packageManager} commands in directory "${pkgRoot}"`);
+	// Determine whether NPM, PNPM, or Yarn should be used to run commands (will default to Yarn)
+	log(`Will run ${pkgManager.name} commands in directory "${pkgRoot}"`);
 
 	// Make sure `package.json` file exists
 	if (!existsSync(pkgJsonPath)) {
@@ -107,8 +147,8 @@ const runAction = () => {
 	setEnv("ADBLOCK", true);
 
 	if(!skipPackageManagerInstall){
-		log(`Installing dependencies using ${packageManager}`);
-		run(`${packageManager} install`, pkgRoot);
+		log(`Installing dependencies using ${pkgManager.name}…`);
+		run(`${pkgManager.command} install`, pkgRoot);
 	}
 
 	// Run NPM build script if it exists
@@ -116,10 +156,8 @@ const runAction = () => {
 		log("Skipping build script because `skip_build` option is set");
 	} else {
 		log("Running the build script…");
-		if(packageManager==='pnpm') {
-			run(`pnpm run ${buildScriptName}`, pkgRoot);
-		} else if (packageManager==='npm') {
-			run(`npm run ${buildScriptName} --if-present`, pkgRoot);
+		if (pkgManager.kind === "npm" || pkgManager.kind === "pnpm") {
+			run(`${pkgManager.command} run ${buildScriptName} --if-present`, pkgRoot);
 		} else {
 			// TODO: Use `yarn run ${buildScriptName} --if-present` once supported
 			// https://github.com/yarnpkg/yarn/issues/6894
@@ -131,15 +169,19 @@ const runAction = () => {
 	}
 
 	log(`Building${release ? " and releasing" : ""} the Electron app…`);
+
 	const cmd = useVueCli ? "vue-cli-service electron:build" : "electron-builder";
+	const fullCmd = `${cmd} --${platform} ${release ? "--publish always" : ""} ${args}`;
+
 	for (let i = 0; i < maxAttempts; i += 1) {
 		try {
-			run(
-				`${useNpm ? "npx --no-install" : "yarn run"} ${cmd} --${platform} ${
-					release ? "--publish always" : ""
-				} ${args}`,
-				appRoot,
-			);
+			if (pkgManager.kind === "npm") {
+				run(`npx --no-install ${fullCmd}`, appRoot);
+			} else if (pkgManager.kind === "pnpm") {
+				run(`pnpm dlx ${fullCmd}`, appRoot);
+			} else {
+				run(`yarn run ${fullCmd}`);
+			}
 			break;
 		} catch (err) {
 			if (i < maxAttempts - 1) {
