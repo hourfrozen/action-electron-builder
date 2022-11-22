@@ -1,8 +1,6 @@
 name: Electron Builder
 author: Ribose Inc.
 description: GitHub Action for building and releasing Electron apps
-branding:
-  icon: 'cloud-lightning'
 
 inputs:
   skip_package_manager_install:
@@ -63,9 +61,9 @@ inputs:
     required: false
 
 runs:
-  using: node12
+  using: node16
   main: index.js
 
 branding:
-  icon: upload-cloud
+  icon: cloud-lightning
   color: blue
