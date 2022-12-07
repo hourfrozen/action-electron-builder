@@ -10,7 +10,7 @@ GitHub Actions allows you to build your app on macOS, Windows and Linux without 
 
 ## Setup
 
-1. **Install and configure `electron-builder`** (v22+) in your Electron app. You can read about this in [the project's docs](https://www.electron.build) or in [my blog post](https://samuelmeuli.com/blog/2019-04-07-packaging-and-publishing-an-electron-app).
+1. **Install and configure `electron-builder`** (v23+) in your Electron app. You can read about this in [the project's docs](https://www.electron.build) or in [samuelmeuli's blog post](https://samuelmeuli.com/blog/2019-04-07-packaging-and-publishing-an-electron-app).
 
 2. If you need to compile code (e.g. TypeScript to JavaScript or Sass to CSS), make sure this is done using a **`build` script in your `package.json` file**. The action will execute that script before packaging your app. However, **make sure that the `build` script does _not_ run `electron-builder`**, as this action will do that for you.
 
@@ -39,7 +39,7 @@ GitHub Actions allows you to build your app on macOS, Windows and Linux without 
              node-version: 16
 
          - name: Build/release Electron app
-           uses: samuelmeuli/action-electron-builder@v1
+           uses: paneron/action-electron-builder@v1.8.1
            with:
              # GitHub token, automatically provided to the action
              # (No need to define this secret in the repo settings)
@@ -100,7 +100,7 @@ Add the following options to your workflow's existing `action-electron-builder` 
 
 ```yml
 - name: Build/release Electron app
-  uses: samuelmeuli/action-electron-builder@v1
+  uses: paneron/action-electron-builder@v1.8.1
   with:
     # ...
     mac_certs: ${{ secrets.mac_certs }}
@@ -135,7 +135,14 @@ If you've configured `electron-builder` to notarize your Electron Mac app [as de
     - `api_key_id`: Key ID found on App Store Connect
     - `api_key_issuer_id`: Issuer ID found on App Store Connect
 
-2.  In your workflow file, add the following step before your `action-electron-builder` step:
+    or
+
+    - `apple_id`: Apple ID
+    - `apple_id_password`: App-specifc password for the Apple ID
+
+2.  (Only required if using `api_key`.)
+    In your workflow file, add the following step before your
+    `action-electron-builder` step:
 
     ```yml
     - name: Prepare for app notarization
@@ -150,18 +157,23 @@ If you've configured `electron-builder` to notarize your Electron Mac app [as de
 
     ```yml
     - name: Build/release Electron app
-      uses: samuelmeuli/action-electron-builder@v1
+      uses: paneron/action-electron-builder@v1.8.1
       with:
         # ...
       env:
         # macOS notarization API key
         API_KEY_ID: ${{ secrets.api_key_id }}
         API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+        # or, if using app-specific password:
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
     ```
 
 ## Example
 
-For an example of the action used in production (including app notarization and publishing to Snapcraft), see [Mini Diary](https://github.com/samuelmeuli/mini-diary).
+For an example of the action used in production (including app notarization and
+publishing to Snapcraft), see [paneron](https://github.com/paneron/paneron)
+.
 
 ## Development
 
@@ -169,6 +181,7 @@ Suggestions and contributions are always welcome! Please discuss larger changes 
 
 ## Related
 
+- [Original Builder Action](https://github.com/samuelmeuli/action-electron-builder) – original GitHub Action from which this is forked
 - [Snapcraft Action](https://github.com/samuelmeuli/action-snapcraft) – GitHub Action for setting up Snapcraft
 - [Lint Action](https://github.com/samuelmeuli/lint-action) – GitHub Action for detecting and fixing linting errors
 - [Maven Publish Action](https://github.com/samuelmeuli/action-maven-publish) – GitHub Action for automatically publishing Maven packages
